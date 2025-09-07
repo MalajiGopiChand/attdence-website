@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Management</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        :root {
+            --primary: #1976d2;
+            --primary-dark: #1565c0;
+            --on-primary: #ffffff;
+            --surface: #ffffff;
+            --on-surface: #212121;
+            --background: #f5f5f5;
+            --error: #d32f2f;
+            --success: #388e3c;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --card-radius: 8px;
+        }
+        
+        body {
+            background-color: var(--background);
+            color: var(--on-surface);
+            min-height: 100vh;
+            padding: 16px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: var(--surface);
+            border-radius: var(--card-radius);
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+        
+        /* Header Styles */
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            background-color: var(--primary);
+            color: var(--on-primary);
+        }
+        
+        .back-button {
+            background: none;
+            border: none;
+            color: var(--on-primary);
+            cursor: pointer;
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        /* Content Area */
+        .content {
+            padding: 20px;
+        }
+        
+        /* Filter Section */
+        .filter-section {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .filter-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--on-surface);
+        }
+        
+        .filter-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: var(--card-radius);
+            background-color: var(--surface);
+            font-size: 1rem;
+        }
+        
+        /* Summary Section */
+        .summary {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding: 12px;
+            background-color: #f0f8ff;
+            border-radius: var(--card-radius);
+        }
+        
+        /* Student List */
+        .student-list {
+            max-height: 60vh;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 1px solid #eee;
+            border-radius: var(--card-radius);
+        }
+        
+        .student-item {
+            padding: 16px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .student-info {
+            flex: 1;
+        }
+        
+        .student-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .student-details {
+            font-size: 0.875rem;
+            color: #666;
+        }
+        
+        .student-status {
+            font-size: 0.75rem;
+            color: var(--primary);
+            margin-top: 4px;
+        }
+        
+        .attendance-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        /* Buttons */
+        .button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--card-radius);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+        
+        .button-primary {
+            background-color: var(--primary);
+            color: var(--on-primary);
+            width: 100%;
+        }
+        
+        .button-primary:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .button-primary:hover:not(:disabled) {
+            background-color: var(--primary-dark);
+        }
+        
+        /* Checkbox */
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: var(--surface);
+            padding: 24px;
+            border-radius: var(--card-radius);
+            width: 90%;
+            max-width: 400px;
+        }
+        
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .modal-text {
+            margin-bottom: 16px;
+        }
+        
+        .modal-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: var(--card-radius);
+            margin-bottom: 16px;
+            font-size: 1rem;
+        }
+        
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        .button-secondary {
+            background-color: #f0f0f0;
+            color: var(--on-surface);
+        }
+        
+        .button-secondary:hover {
+            background-color: #e0e0e0;
+        }
+        
+        /* Loading Spinner */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Success Message */
+        .success-message {
+            padding: 16px;
+            background-color: #e8f5e9;
+            color: var(--success);
+            border-radius: var(--card-radius);
+            margin-bottom: 16px;
+            text-align: center;
+            display: none;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .filter-section {
+                flex-direction: column;
+            }
+            
+            .student-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .attendance-controls {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <button class="back-button" id="backButton">
+                <i class="material-icons">arrow_back</i>
+            </button>
+            <h1 class="header-title">Mark Attendance</h1>
+        </div>
+        
+        <!-- Content Area -->
+        <div class="content">
+            <!-- Success Message -->
+            <div class="success-message" id="successMessage">
+                <i class="material-icons">check_circle</i>
+                <span>Attendance saved successfully!</span>
+            </div>
+            
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <div class="filter-group">
+                    <label class="filter-label">Class</label>
+                    <select class="filter-select" id="classFilter">
+                        <option value="All">All Classes</option>
+                        <option value="Beginner">Beginner</option>
+                        <option value="Primary">Primary</option>
+                        <option value="Secondary">Secondary</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Place</label>
+                    <select class="filter-select" id="placeFilter">
+                        <option value="All">All Places</option>
+                        <option value="Kandrika">Kandrika</option>
+                        <option value="Krishna Lanka">Krishna Lanka</option>
+                        <option value="Gandhiji Conly">Gandhiji Conly</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Summary -->
+            <div class="summary">
+                <span id="summaryText">0 Present, 0 Absent</span>
+            </div>
+            
+            <!-- Student List -->
+            <div class="student-list" id="studentList">
+                <div class="loading">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+            
+            <!-- Save Button -->
+            <button class="button button-primary" id="saveButton" disabled>
+                Save Attendance
+            </button>
+        </div>
+    </div>
+
+    <!-- Name Input Modal -->
+    <div class="modal" id="nameModal">
+        <div class="modal-content">
+            <h2 class="modal-title">Enter Your Name</h2>
+            <p class="modal-text">Please enter your full name to mark attendance.</p>
+            <input type="text" class="modal-input" id="nameInput" placeholder="Full Name">
+            <div class="modal-actions">
+                <button class="button button-secondary" id="cancelButton">Cancel</button>
+                <button class="button button-primary" id="confirmNameButton">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase App (core Firebase SDK) -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { 
+            getAuth, 
+            onAuthStateChanged,
+            updateProfile 
+        } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            onSnapshot,
+            doc,
+            updateDoc,
+            arrayUnion,
+            writeBatch
+        } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCXAyCHDaCUrr09wRYShmKfQMyVRB7-PUA",
+            authDomain: "sundaydethel.firebaseapp.com",
+            databaseURL: "https://sundaydethel-default-rtdb.firebaseio.com",
+            projectId: "sundaydethel",
+            storageBucket: "sundaydethel.firebasestorage.app",
+            messagingSenderId: "351109956750",
+            appId: "1:351109956750:web:959769808988e24b90b5df",
+            measurementId: "G-XMJYHZZ76P"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        // Make Firebase available globally
+        window.firebaseApp = app;
+        window.firebaseAuth = auth;
+        window.firebaseFirestore = db;
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const backButton = document.getElementById('backButton');
+            const classFilter = document.getElementById('classFilter');
+            const placeFilter = document.getElementById('placeFilter');
+            const studentList = document.getElementById('studentList');
+            const saveButton = document.getElementById('saveButton');
+            const summaryText = document.getElementById('summaryText');
+            const nameModal = document.getElementById('nameModal');
+            const nameInput = document.getElementById('nameInput');
+            const cancelButton = document.getElementById('cancelButton');
+            const confirmNameButton = document.getElementById('confirmNameButton');
+            const successMessage = document.getElementById('successMessage');
+            
+            // State
+            let students = [];
+            let presentMap = {};
+            let absentMap = {};
+            let currentUser = null;
+            let today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+            
+            // Check authentication state
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    currentUser = user;
+                    loadStudents();
+                } else {
+                    // Redirect to login if not authenticated
+                    window.location.href = 'login.html';
+                }
+            });
+            
+            // Back button
+            backButton.addEventListener('click', function() {
+                window.history.back();
+            });
+            
+            // Filter change events
+            classFilter.addEventListener('change', filterStudents);
+            placeFilter.addEventListener('change', filterStudents);
+            
+            // Save button
+            saveButton.addEventListener('click', function() {
+                // Check if user has a display name
+                if (!currentUser.displayName) {
+                    nameModal.style.display = 'flex';
+                    return;
+                }
+                
+                saveAttendance();
+            });
+            
+            // Name modal buttons
+            cancelButton.addEventListener('click', function() {
+                nameModal.style.display = 'none';
+            });
+            
+            confirmNameButton.addEventListener('click', function() {
+                const name = nameInput.value.trim();
+                if (name) {
+                    updateProfile(currentUser, {
+                        displayName: name
+                    }).then(() => {
+                        currentUser.displayName = name;
+                        nameModal.style.display = 'none';
+                        saveAttendance();
+                    }).catch((error) => {
+                        console.error("Error updating profile:", error);
+                        alert("Error saving name: " + error.message);
+                    });
+                } else {
+                    alert("Please enter your name");
+                }
+            });
+            
+            // Load students from Firestore
+            function loadStudents() {
+                studentList.innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                `;
+                
+                onSnapshot(collection(db, "students"), (snapshot) => {
+                    students = [];
+                    presentMap = {};
+                    absentMap = {};
+                    
+                    snapshot.forEach((doc) => {
+                        const studentData = doc.data();
+                        const student = {
+                            id: doc.id,
+                            name: studentData.name || "",
+                            classType: studentData.classType || "Beginner",
+                            location: studentData.place || "Kandrika",
+                            attendance: studentData.attendance || [],
+                            absentDates: studentData.absentDates || []
+                        };
+                        
+                        students.push(student);
+                        
+                        // Check if already marked today
+                        const alreadyMarkedPresent = student.attendance.some(a => a && a.startsWith(today));
+                        const alreadyMarkedAbsent = student.absentDates.some(a => a && a.startsWith(today));
+                        
+                        if (alreadyMarkedPresent) {
+                            presentMap[student.id] = true;
+                        } else if (alreadyMarkedAbsent) {
+                            absentMap[student.id] = true;
+                        } else {
+                            presentMap[student.id] = false;
+                            absentMap[student.id] = false;
+                        }
+                    });
+                    
+                    filterStudents();
+                    updateSummary();
+                }, (error) => {
+                    console.error("Error loading students:", error);
+                    studentList.innerHTML = `
+                        <div style="padding: 20px; text-align: center; color: var(--error);">
+                            Error loading students: ${error.message}
+                        </div>
+                    `;
+                });
+            }
+            
+            // Filter students based on selected filters
+            function filterStudents() {
+                const selectedClass = classFilter.value;
+                const selectedPlace = placeFilter.value;
+                
+                const filteredStudents = students.filter(student => {
+                    const classMatch = selectedClass === "All" || student.classType === selectedClass;
+                    let placeMatch = false;
+                    
+                    if (selectedPlace === "All") {
+                        placeMatch = true;
+                    } else if (selectedPlace === "Other") {
+                        placeMatch = !["Kandrika", "Krishna Lanka", "Gandhiji Conly"].includes(student.location);
+                    } else {
+                        placeMatch = student.location === selectedPlace;
+                    }
+                    
+                    return classMatch && placeMatch;
+                }).sort((a, b) => a.name.localeCompare(b.name));
+                
+                renderStudents(filteredStudents);
+            }
+            
+            // Render students list
+            function renderStudents(studentsToRender) {
+                if (studentsToRender.length === 0) {
+                    studentList.innerHTML = `
+                        <div style="padding: 20px; text-align: center;">
+                            No students found matching the selected filters.
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = '';
+                
+                studentsToRender.forEach(student => {
+                    const alreadyMarkedPresent = student.attendance.some(a => a && a.startsWith(today));
+                    const alreadyMarkedAbsent = student.absentDates.some(a => a && a.startsWith(today));
+                    const alreadyMarked = alreadyMarkedPresent || alreadyMarkedAbsent;
+                    
+                    html += `
+                        <div class="student-item">
+                            <div class="student-info">
+                                <div class="student-name">${student.name}</div>
+                                <div class="student-details">${student.classType} • ${student.location}</div>
+                                ${alreadyMarked ? `
+                                    <div class="student-status">
+                                        Already marked ${alreadyMarkedPresent ? 'Present' : 'Absent'} today
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div class="attendance-controls">
+                                ${!alreadyMarked ? `
+                                    <div class="checkbox-group">
+                                        <input 
+                                            type="checkbox" 
+                                            class="checkbox" 
+                                            id="absent-${student.id}"
+                                            ${absentMap[student.id] ? 'checked' : ''}
+                                            onchange="toggleAbsent('${student.id}')"
+                                        >
+                                        <label for="absent-${student.id}">Absent</label>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <input 
+                                            type="checkbox" 
+                                            class="checkbox" 
+                                            id="present-${student.id}"
+                                            ${presentMap[student.id] ? 'checked' : ''}
+                                            onchange="togglePresent('${student.id}')"
+                                        >
+                                        <label for="present-${student.id}">Present</label>
+                                    </div>
+                                ` : `
+                                    <i class="material-icons" style="color: ${alreadyMarkedPresent ? 'var(--success)' : 'var(--error)'}">
+                                        check_circle
+                                    </i>
+                                `}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                studentList.innerHTML = html;
+            }
+            
+            // Update summary text
+            function updateSummary() {
+                const presentCount = Object.values(presentMap).filter(v => v).length;
+                const absentCount = Object.values(absentMap).filter(v => v).length;
+                
+                summaryText.textContent = `${presentCount} Present, ${absentCount} Absent`;
+                
+                // Enable save button if there are changes
+                saveButton.disabled = (presentCount === 0 && absentCount === 0);
+            }
+            
+            // Toggle absent status
+            window.toggleAbsent = function(studentId) {
+                const isAbsent = !absentMap[studentId];
+                
+                absentMap[studentId] = isAbsent;
+                
+                if (isAbsent) {
+                    presentMap[studentId] = false;
+                }
+                
+                // Update checkboxes
+                document.getElementById(`absent-${studentId}`).checked = isAbsent;
+                document.getElementById(`present-${studentId}`).checked = false;
+                
+                updateSummary();
+            }
+            
+            // Toggle present status
+            window.togglePresent = function(studentId) {
+                const isPresent = !presentMap[studentId];
+                
+                presentMap[studentId] = isPresent;
+                
+                if (isPresent) {
+                    absentMap[studentId] = false;
+                }
+                
+                // Update checkboxes
+                document.getElementById(`present-${studentId}`).checked = isPresent;
+                document.getElementById(`absent-${studentId}`).checked = false;
+                
+                updateSummary();
+            }
+            
+            // Save attendance to Firestore
+            async function saveAttendance() {
+                const presentIds = Object.keys(presentMap).filter(id => presentMap[id]);
+                const absentIds = Object.keys(absentMap).filter(id => absentMap[id]);
+                
+                if (presentIds.length === 0 && absentIds.length === 0) {
+                    alert("No students marked for attendance");
+                    return;
+                }
+                
+                const teacherName = currentUser.displayName;
+                const fullDate = `${today}::${teacherName}`;
+                
+                try {
+                    saveButton.disabled = true;
+                    saveButton.textContent = "Saving...";
+                    
+                    const batch = writeBatch(db);
+                    
+                    // Mark present students
+                    for (const studentId of presentIds) {
+                        const studentRef = doc(db, "students", studentId);
+                        batch.update(studentRef, {
+                            attendance: arrayUnion(fullDate)
+                        });
+                    }
+                    
+                    // Mark absent students
+                    for (const studentId of absentIds) {
+                        const studentRef = doc(db, "students", studentId);
+                        batch.update(studentRef, {
+                            absentDates: arrayUnion(fullDate)
+                        });
+                    }
+                    
+                    await batch.commit();
+                    
+                    // Show success message
+                    successMessage.style.display = 'block';
+                    
+                    // Reload students after a delay
+                    setTimeout(() => {
+                        successMessage.style.display = 'none';
+                        loadStudents();
+                        saveButton.textContent = "Save Attendance";
+                    }, 2000);
+                    
+                } catch (error) {
+                    console.error("Error saving attendance:", error);
+                    alert("Error saving attendance: " + error.message);
+                    saveButton.disabled = false;
+                    saveButton.textContent = "Save Attendance";
+                }
+            }
+        });
+    </script>
+</body>
+</html>

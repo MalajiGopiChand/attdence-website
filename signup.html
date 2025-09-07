@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunday School - Sign Up with Firebase</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="dashbord.html">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+            overflow: hidden;
+        }
+        
+        .header {
+            padding: 30px 20px;
+            text-align: center;
+            background-color: #1976d2;
+            color: white;
+        }
+        
+        .header h2 {
+            font-weight: 500;
+            font-size: 24px;
+            margin-top: 15px;
+        }
+        
+        .logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form {
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #1976d2;
+            box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 45px;
+            cursor: pointer;
+            color: #777;
+        }
+        
+        .error-message {
+            color: #d32f2f;
+            font-size: 14px;
+            margin-top: 8px;
+            display: none;
+        }
+        
+        .success-message {
+            color: #388e3c;
+            font-size: 14px;
+            margin-top: 8px;
+            display: none;
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background-color: #1976d2;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #1565c0;
+        }
+        
+        .btn-outlined {
+            background-color: transparent;
+            border: 1px solid #ddd;
+            color: #444;
+        }
+        
+        .btn-outlined:hover {
+            background-color: rgba(0, 0, 0, 0.04);
+        }
+        
+        .btn-loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        .divider::before, .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .divider-text {
+            padding: 0 15px;
+            color: #777;
+            font-size: 14px;
+        }
+        
+        .google-btn-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .google-logo {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .links {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .link {
+            color: #1976d2;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+        
+        .link:hover {
+            text-decoration: underline;
+        }
+        
+        .name-fields {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .name-fields .form-group {
+            flex: 1;
+        }
+        
+        .password-strength {
+            height: 5px;
+            background-color: #eee;
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .password-strength-text {
+            font-size: 12px;
+            margin-top: 4px;
+            text-align: right;
+            color: #777;
+        }
+        
+        .terms {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .terms input {
+            margin-top: 3px;
+        }
+        
+        .terms label {
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .terms a {
+            color: #1976d2;
+            text-decoration: none;
+        }
+        
+        .terms a:hover {
+            text-decoration: underline;
+        }
+        
+        .debug-info {
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+            display: none; /* Initially hidden */
+        }
+        
+        .debug-info h3 {
+            margin-bottom: 10px;
+            color: #1976d2;
+        }
+        
+        .debug-toggle {
+            color: #1976d2;
+            cursor: pointer;
+            font-size: 13px;
+            text-align: right;
+            margin-top: 10px;
+            display: block; /* Make it a block element */
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                max-width: 100%;
+            }
+            
+            .form {
+                padding: 20px;
+            }
+            
+            .name-fields {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://via.placeholder.com/120" alt="App Logo" class="logo">
+            <h2>Create Account</h2>
+        </div>
+        
+        <div class="form">
+            <div class="name-fields">
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" class="input-field" placeholder="Enter your first name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" id="lastName" class="input-field" placeholder="Enter your last name">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" class="input-field" placeholder="Enter your email">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" class="input-field" placeholder="Create a password">
+                <span class="password-toggle material-icons" id="passwordToggle">visibility</span>
+                
+                <div class="password-strength">
+                    <div class="password-strength-bar" id="passwordStrengthBar"></div>
+                </div>
+                <div class="password-strength-text" id="passwordStrengthText">Password strength</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" class="input-field" placeholder="Confirm your password">
+                <span class="password-toggle material-icons" id="confirmPasswordToggle">visibility</span>
+            </div>
+            
+            <div class="terms">
+                <input type="checkbox" id="termsAgreement">
+                <label for="termsAgreement">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+            </div>
+            
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+            
+            <button class="btn btn-primary" id="signupBtn">
+                <span>Create Account</span>
+            </button>
+            
+            <div class="divider">
+                <span class="divider-text">or</span>
+            </div>
+            
+            <button class="btn btn-outlined" id="googleSignUpBtn">
+                <div class="google-btn-content">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google Logo" class="google-logo">
+                    <span>Sign up with Google</span>
+                </div>
+            </button>
+            
+            <div class="links">
+                <span>Already have an account?</span>
+                <a class="link" id="loginLink">Sign In</a>
+            </div>
+
+            <div class="debug-toggle" id="debugToggle">Show Debug Information</div>
+            <div class="debug-info" id="debugInfo">
+                <h3>Debug Information</h3>
+                <p><strong>Status:</strong> <span id="debugStatus">Ready</span></p>
+                <p><strong>User UID:</strong> <span id="debugUid">N/A</span></p>
+                <p><strong>Email:</strong> <span id="debugEmail">N/A</span></p>
+                <p><strong>Display Name:</strong> <span id="debugDisplayName">N/A</span></p>
+                <p><strong>Error:</strong> <span id="debugError">None</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            signInWithPopup, 
+            GoogleAuthProvider, 
+            updateProfile 
+        } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-analytics.js";
+        import { 
+            getFirestore, 
+            doc, 
+            setDoc,
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCXAyCHDaCUrr09wRYShmKfQMyVRB7-PUA",
+            authDomain: "sundaydethel.firebaseapp.com",
+            databaseURL: "https://sundaydethel-default-rtdb.firebaseio.com",
+            projectId: "sundaydethel",
+            storageBucket: "sundaydethel.firebasestorage.app",
+            messagingSenderId: "351109956750",
+            appId: "1:351109956750:web:959769808988e24b90b5df",
+            measurementId: "G-XMJYHZZ76P"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const analytics = getAnalytics(app);
+        const provider = new GoogleAuthProvider();
+
+        // Make auth available globally for the traditional script
+        window.auth = auth;
+        window.db = db;
+        window.provider = provider;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.signInWithPopup = signInWithPopup;
+        window.updateProfile = updateProfile;
+        window.setDoc = setDoc;
+        window.doc = doc;
+        window.serverTimestamp = serverTimestamp;
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstNameInput = document.getElementById('firstName');
+            const lastNameInput = document.getElementById('lastName');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const passwordToggle = document.getElementById('passwordToggle');
+            const confirmPasswordToggle = document.getElementById('confirmPasswordToggle');
+            const signupBtn = document.getElementById('signupBtn');
+            const googleSignUpBtn = document.getElementById('googleSignUpBtn');
+            const loginLink = document.getElementById('loginLink');
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            const termsAgreement = document.getElementById('termsAgreement');
+            const passwordStrengthBar = document.getElementById('passwordStrengthBar');
+            const passwordStrengthText = document.getElementById('passwordStrengthText');
+            const debugToggle = document.getElementById('debugToggle');
+            const debugInfo = document.getElementById('debugInfo');
+            const debugStatus = document.getElementById('debugStatus');
+            const debugUid = document.getElementById('debugUid');
+            const debugEmail = document.getElementById('debugEmail');
+            const debugDisplayName = document.getElementById('debugDisplayName');
+            const debugError = document.getElementById('debugError');
+
+            let isPasswordVisible = false;
+            let isConfirmPasswordVisible = false;
+
+            // Toggle debug info
+            debugToggle.addEventListener('click', function() {
+                if (debugInfo.style.display === 'none') {
+                    debugInfo.style.display = 'block';
+                    debugToggle.textContent = 'Hide Debug Information';
+                } else {
+                    debugInfo.style.display = 'none';
+                    debugToggle.textContent = 'Show Debug Information';
+                }
+            });
+            
+            // Toggle password visibility
+            passwordToggle.addEventListener('click', function() {
+                isPasswordVisible = !isPasswordVisible;
+                passwordInput.type = isPasswordVisible ? 'text' : 'password';
+                passwordToggle.textContent = isPasswordVisible ? 'visibility_off' : 'visibility';
+            });
+            
+            // Toggle confirm password visibility
+            confirmPasswordToggle.addEventListener('click', function() {
+                isConfirmPasswordVisible = !isConfirmPasswordVisible;
+                confirmPasswordInput.type = isConfirmPasswordVisible ? 'text' : 'password';
+                confirmPasswordToggle.textContent = isConfirmPasswordVisible ? 'visibility_off' : 'visibility';
+            });
+            
+            // Check password strength
+            passwordInput.addEventListener('input', function() {
+                checkPasswordStrength(passwordInput.value);
+            });
+            
+            // Signup button click handler
+            signupBtn.addEventListener('click', function() {
+                const firstName = firstNameInput.value.trim();
+                const lastName = lastNameInput.value.trim();
+                const email = emailInput.value.trim();
+                const password = passwordInput.value;
+                const confirmPassword = confirmPasswordInput.value;
+                
+                // Reset messages
+                errorMessage.style.display = 'none';
+                successMessage.style.display = 'none';
+                
+                // Validate inputs
+                if (!firstName || !lastName || !email || !password || !confirmPassword) {
+                    showError('Please fill in all fields.');
+                    return;
+                }
+                
+                if (!termsAgreement.checked) {
+                    showError('Please agree to the Terms of Service and Privacy Policy.');
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    showError('Passwords do not match.');
+                    return;
+                }
+                
+                if (password.length < 6) {
+                    showError('Password must be at least 6 characters long.');
+                    return;
+                }
+                
+                // Firebase email/password authentication
+                signUpWithEmailPassword(firstName, lastName, email, password);
+            });
+            
+            // Google sign-up button click handler
+            googleSignUpBtn.addEventListener('click', function() {
+                signUpWithGoogle();
+            });
+            
+            // Login link click handler
+            loginLink.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevent default link behavior
+                redirectToLogin();
+            });
+            
+            // Function to show error message
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+                updateDebugInfo(null, message);
+            }
+            
+            // Function to show success message
+            function showSuccess(message) {
+                successMessage.textContent = message;
+                successMessage.style.display = 'block';
+            }
+            
+            // Function to redirect to login page
+            function redirectToLogin() {
+                window.location.href = 'login.html'; // Change to your actual login page URL
+            }
+
+            // Function to update debug information
+            function updateDebugInfo(user, error = null) {
+                if (user) {
+                    debugStatus.textContent = 'Account Created';
+                    debugUid.textContent = user.uid;
+                    debugEmail.textContent = user.email;
+                    debugDisplayName.textContent = user.displayName;
+                } else {
+                    debugStatus.textContent = 'Failed';
+                    debugUid.textContent = 'N/A';
+                    debugEmail.textContent = 'N/A';
+                    debugDisplayName.textContent = 'N/A';
+                }
+                debugError.textContent = error || 'None';
+            }
+
+            // Check password strength
+            function checkPasswordStrength(password) {
+                let strength = 0;
+                let text = '';
+                let color = '';
+                
+                if (password.length >= 8) strength += 20;
+                if (password.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/)) strength += 20;
+                if (password.match(/([0-9])/)) strength += 20;
+                if (password.match(/([!,@,#,$,%,^,&,*,?,_,~])/)) strength += 20;
+                if (password.length > 12) strength += 20;
+                
+                if (strength < 40) {
+                    text = 'Weak';
+                    color = '#d32f2f';
+                } else if (strength < 80) {
+                    text = 'Medium';
+                    color = '#f57c00';
+                } else {
+                    text = 'Strong';
+                    color = '#388e3c';
+                }
+                
+                passwordStrengthBar.style.width = strength + '%';
+                passwordStrengthBar.style.backgroundColor = color;
+                passwordStrengthText.textContent = text;
+                passwordStrengthText.style.color = color;
+            }
+            
+            // Firebase email/password authentication
+            function signUpWithEmailPassword(firstName, lastName, email, password) {
+                // Show loading state
+                signupBtn.innerHTML = '<div class="btn-loading"><div class="loading-spinner"></div><span>Creating account...</span></div>';
+                signupBtn.disabled = true;
+                
+                createUserWithEmailAndPassword(auth, email, password)
+                    .then((userCredential) => {
+                        // Signed up 
+                        const user = userCredential.user;
+                        
+                        // Update profile with display name
+                        return updateProfile(user, {
+                            displayName: `${firstName} ${lastName}`
+                        }).then(() => {
+                            // Save additional user data to Firestore
+                            return setDoc(doc(db, "users", user.uid), {
+                                uid: user.uid,
+                                firstName: firstName,
+                                lastName: lastName,
+                                email: email,
+                                displayName: `${firstName} ${lastName}`,
+                                createdAt: serverTimestamp(),
+                                role: "user"
+                            }, { merge: true }); // Use merge to avoid overwriting entire document
+                        }).then(() => {
+                            updateDebugInfo(user);
+                            showSuccess('Account created successfully! Redirecting to login page...');
+                            
+                            // Redirect to login page
+                            setTimeout(() => {
+                                redirectToLogin();
+                            }, 1500);
+                        });
+                    })
+                    .catch((error) => {
+                        const errorCode = error.code;
+                        const errorMessage = error.message;
+                        
+                        // Handle errors
+                        if (errorCode === 'auth/email-already-in-use') {
+                            showError('This email is already registered.');
+                        } else if (errorCode === 'auth/invalid-email') {
+                            showError('Invalid email address format.');
+                        } else if (errorCode === 'auth/weak-password') {
+                            showError('Password is too weak.');
+                        } else {
+                            showError(errorMessage);
+                            console.error("Firebase error:", error);
+                        }
+                        
+                        // Reset button
+                        signupBtn.innerHTML = '<span>Create Account</span>';
+                        signupBtn.disabled = false;
+                    });
+            }
+            
+            // Firebase Google authentication
+            function signUpWithGoogle() {
+                googleSignUpBtn.innerHTML = '<div class="btn-loading"><div class="loading-spinner"></div><span>Connecting to Google...</span></div>';
+                googleSignUpBtn.disabled = true;
+                
+                signInWithPopup(auth, provider)
+                    .then((result) => {
+                        // The signed-in user info
+                        const user = result.user;
+                        
+                        // Extract first and last name from display name
+                        const names = user.displayName ? user.displayName.split(' ') : [];
+                        const firstName = names[0] || '';
+                        const lastName = names.length > 1 ? names.slice(1).join(' ') : '';
+                        
+                        // Save user data to Firestore
+                        return setDoc(doc(db, "users", user.uid), {
+                            uid: user.uid,
+                            firstName: firstName,
+                            lastName: lastName,
+                            email: user.email,
+                            displayName: user.displayName,
+                            photoURL: user.photoURL,
+                            createdAt: serverTimestamp(),
+                            role: "user",
+                            provider: "google"
+                        }, { merge: true }).then(() => {
+                            updateDebugInfo(user);
+                            showSuccess('Google authentication successful! Redirecting to login page...');
+                            
+                            // Redirect to login page
+                            setTimeout(() => {
+                                redirectToLogin();
+                            }, 1500);
+                        });
+                    })
+                    .catch((error) => {
+                        // Handle Errors here.
+                        const errorCode = error.code;
+                        const errorMessage = error.message;
+                        
+                        showError(`Google Sign-Up failed: ${errorMessage}`);
+                        console.error("Google sign-in error:", error);
+                        
+                        // Reset button
+                        googleSignUpBtn.innerHTML = '<div class="google-btn-content"><img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google Logo" class="google-logo"><span>Sign up with Google</span></div>';
+                        googleSignUpBtn.disabled = false;
+                    });
+            }
+        });
+    </script>
+</body>
+</html>

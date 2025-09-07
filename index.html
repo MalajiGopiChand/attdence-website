@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunday School Dashboard</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+        /* General Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        :root {
+            --primary: #1976d2;
+            --primary-dark: #1565c0;
+            --on-primary: #ffffff;
+            --secondary: #03a9f4;
+            --surface: #ffffff;
+            --on-surface: #212121;
+            --background: #f5f5f5;
+            --error: #d32f2f;
+            --success: #388e3c;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --card-radius: 16px;
+        }
+
+        /* Dark Theme Styles */
+        body.dark-theme {
+            --surface: #2c2c2c;
+            --on-surface: #f5f5f5;
+            --background: #1e1e1e;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+        
+        body {
+            background-color: var(--background);
+            color: var(--on-surface);
+            min-height: 100vh;
+        }
+        
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background-color: var(--surface);
+            border-radius: var(--card-radius);
+            box-shadow: var(--card-shadow);
+            margin-bottom: 24px;
+        }
+        
+        .header-title {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .header-title h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .header-title p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        body.dark-theme .header-title p {
+            color: #ccc;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .icon-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .icon-button:hover {
+            background-color: rgba(25, 118, 210, 0.1);
+        }
+        
+        /* Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--surface);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        body.dark-theme .bottom-nav {
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #757575;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        body.dark-theme .nav-item {
+            color: #aaa;
+        }
+        
+        .nav-item.active {
+            color: var(--primary);
+            background-color: rgba(25, 118, 210, 0.1);
+        }
+        
+        .nav-item i {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+        
+        .nav-item span {
+            font-size: 12px;
+        }
+        
+        /* Content Area */
+        .content {
+            padding-bottom: 80px; /* Space for bottom nav */
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Card Styles */
+        .card {
+            background-color: var(--surface);
+            border-radius: var(--card-radius);
+            box-shadow: var(--card-shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--primary);
+        }
+        
+        /* Today's Focus Card */
+        .todays-focus {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--on-primary);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .todays-focus h2 {
+            margin-bottom: 16px;
+            font-size: 1.5rem;
+        }
+        
+        .attendance-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .divider {
+            width: 1px;
+            background-color: rgba(255, 255, 255, 0.3);
+            margin: 0 20px;
+        }
+        
+        /* Leaderboard */
+        .leaderboard {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            height: 200px;
+            margin: 20px 0;
+        }
+        
+        .leaderboard-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .student-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+        }
+        
+        .student-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+            text-align: center;
+            max-width: 80px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .student-dollars {
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .medal {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+        }
+        
+        .medal-gold {
+            background-color: #FFD700;
+            color: black;
+        }
+        
+        .medal-silver {
+            background-color: #C0C0C0;
+            color: black;
+        }
+        
+        .medal-bronze {
+            background-color: #CD7F32;
+            color: white;
+        }
+        
+        /* Quick Actions Grid */
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 16px 0;
+        }
+        
+        .action-button {
+            height: 120px;
+            border-radius: var(--card-radius);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .action-button:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .action-button i {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        
+        .action-button span {
+            font-weight: 500;
+            text-align: center;
+        }
+        
+        /* Encouragement Card */
+        .encouragement {
+            display: flex;
+            align-items: center;
+            background-color: #e3f2fd;
+            color: var(--primary-dark);
+        }
+        
+        body.dark-theme .encouragement {
+            background-color: #3f51b5;
+            color: #e3f2fd;
+        }
+        
+        .encouragement i {
+            font-size: 2rem;
+            margin-right: 16px;
+            color: var(--primary);
+        }
+
+        body.dark-theme .encouragement i {
+            color: #e3f2fd;
+        }
+        
+        .encouragement-content h3 {
+            margin-bottom: 4px;
+        }
+        
+        .encouragement-content p {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+        
+        /* Loading Spinner */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        body.dark-theme .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: var(--primary);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard {
+                padding: 12px;
+            }
+            
+            .header-title h1 {
+                font-size: 1.3rem;
+            }
+            
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-value {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+                gap: 12px;
+            }
+            
+            .header-title {
+                order: 2;
+            }
+            
+            .header-actions {
+                order: 1;
+                align-self: flex-end;
+            }
+            
+            .attendance-stats {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .divider {
+                width: 100%;
+                height: 1px;
+                margin: 10px 0;
+            }
+            
+            .leaderboard {
+                flex-direction: column;
+                align-items: center;
+                height: auto;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <div class="header-title">
+                <h1>Bethel Sunday School</h1>
+                <p id="welcome-text">Welcome Teacher</p>
+            </div>
+            <div class="header-actions">
+                <button class="icon-button" id="theme-toggle">
+                    <i class="material-icons">nights_stay</i>
+                </button>
+                <button class="icon-button" id="profile-button">
+                    <i class="material-icons">account_circle</i>
+                </button>
+                <button class="icon-button" id="settings-button">
+                    <i class="material-icons">settings</i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="tab-content active" id="home-tab">
+                <div class="card todays-focus">
+                    <h2>Today's Focus</h2>
+                    <div class="attendance-stats">
+                        <div class="stat">
+                            <div class="stat-value" id="present-count">0</div>
+                            <div class="stat-label">Present</div>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="stat">
+                            <div class="stat-value" id="absent-count">0</div>
+                            <div class="stat-label">Absent</div>
+                        </div>
+                    </div>
+                    <p>Don't forget to mark today's attendance!</p>
+                </div>
+                
+                <div class="card">
+                    <h2 class="card-title">Top Students</h2>
+                    <div class="leaderboard" id="leaderboard">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2 class="card-title">Quick Actions</h2>
+                    <div class="actions-grid">
+                        <a href="TakeAttendance.html" class="action-button" style="background: linear-gradient(135deg, #8EC5FC, #E0C3FC);">
+                            <i class="material-icons">event_available</i>
+                            <span>Take Attendance</span>
+                        </a>
+                        <a href="GiveDollars.html" class="action-button" style="background: linear-gradient(135deg, #a1c4fd, #c2e9fb);">
+                            <i class="material-icons">attach_money</i>
+                            <span>Give Dollars</span>
+                        </a>
+                        <a href="ViewStudents.html" class="action-button" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                            <i class="material-icons">group</i>
+                            <span>View Students</span>
+                        </a>
+                        <a href="DollarHistory.html" class="action-button" style="background: linear-gradient(135deg, #D4FC79, #96E6A1);">
+                            <i class="material-icons">history_edu</i>
+                            <span>Dollar History</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card encouragement">
+                    <i class="material-icons">celebration</i>
+                    <div class="encouragement-content">
+                        <h3>Keep up the great work!</h3>
+                        <p>Your dedication helps our students shine every Sunday.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="attendance-tab">
+                <div class="card">
+                    <h2 class="card-title">Attendance Actions</h2>
+                    <div class="actions-grid">
+                        <a href="TakeAttendance.html" class="action-button" style="background: linear-gradient(135deg, #8EC5FC, #E0C3FC);">
+                            <i class="material-icons">event_note</i>
+                            <span>Take Attendance</span>
+                        </a>
+                        <a href="ViewAttendance.html" class="action-button" style="background: linear-gradient(135deg, #a1c4fd, #c2e9fb);">
+                            <i class="material-icons">list_alt</i>
+                            <span>View Attendance</span>
+                        </a>
+                        <a href="AbsentStudents.html" class="action-button" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                            <i class="material-icons">person_off</i>
+                            <span>Absent Students</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="dollars-tab">
+                <div class="card">
+                    <h2 class="card-title">Dollar Actions</h2>
+                    <div class="actions-grid">
+                        <a href="GiveDollars.htm" class="action-button" style="background: linear-gradient(135deg, #8EC5FC, #E0C3FC);">
+                            <i class="material-icons">attach_money</i>
+                            <span>Give Dollars</span>
+                        </a>
+                        <a href="DollarHistory.html" class="action-button" style="background: linear-gradient(135deg, #a1c4fd, #c2e9fb);">
+                            <i class="material-icons">history</i>
+                            <span>Dollar History</span>
+                        </a>
+                        <a href="Leaderboard.html" class="action-button" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                            <i class="material-icons">leaderboard</i>
+                            <span>Leaderboard</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="students-tab">
+                <div class="card">
+                    <h2 class="card-title">Student Actions</h2>
+                    <div class="actions-grid">
+                        <a href="StudentDetails.html" class="action-button" style="background: linear-gradient(135deg, #8EC5FC, #E0C3FC);">
+                            <i class="material-icons">person_search</i>
+                            <span>Student Details</span>
+                        </a>
+                        <a href="ViewRecords.html" class="action-button" style="background: linear-gradient(135deg, #a1c4fd, #c2e9fb);">
+                            <i class="material-icons">book</i>
+                            <span>View Records</span>
+                        </a>
+                        <a href="DownloadReports.html" class="action-button" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                            <i class="material-icons">download</i>
+                            <span>Download Reports</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="teachers-tab">
+                <div class="card">
+                    <h2 class="card-title">Teacher Actions</h2>
+                    <div class="actions-grid">
+                        <a href="TeacherSchedules.html" class="action-button" style="background: linear-gradient(135deg, #8EC5FC, #E0C3FC);">
+                            <i class="material-icons">people</i>
+                            <span>Teachers Schedules</span>
+                        </a>
+                        <a href="TeacherReport.html" class="action-button" style="background: linear-gradient(135deg, #a1c4fd, #c2e9fb);">
+                            <i class="material-icons">schedule</i>
+                            <span>Teachers Report</span>
+                        </a>
+                        <a href="TeacherList.html" class="action-button" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                            <i class="material-icons">schedule</i>
+                            <span>Teachers List</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bottom-nav">
+            <a href="#home" class="nav-item active" data-tab="home-tab">
+                <i class="material-icons">home</i>
+                <span>Home</span>
+            </a>
+            <a href="#attendance" class="nav-item" data-tab="attendance-tab">
+                <i class="material-icons">event_note</i>
+                <span>Attendance</span>
+            </a>
+            <a href="#dollars" class="nav-item" data-tab="dollars-tab">
+                <i class="material-icons">attach_money</i>
+                <span>Dollars</span>
+            </a>
+            <a href="#students" class="nav-item" data-tab="students-tab">
+                <i class="material-icons">people</i>
+                <span>Students</span>
+            </a>
+            <a href="#teachers" class="nav-item" data-tab="teachers-tab">
+                <i class="material-icons">school</i>
+                <span>Teachers</span>
+            </a>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCXAyCHDaCUrr09wRYShmKfQMyVRB7-PUA",
+            authDomain: "sundaydethel.firebaseapp.com",
+            databaseURL: "https://sundaydethel-default-rtdb.firebaseio.com",
+            projectId: "sundaydethel",
+            storageBucket: "sundaydethel.firebasestorage.app",
+            messagingSenderId: "351109956750",
+            appId: "1:351109956750:web:959769808988e24b90b5df",
+            measurementId: "G-XMJYHZZ76P"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const welcomeText = document.getElementById('welcome-text');
+            const presentCount = document.getElementById('present-count');
+            const absentCount = document.getElementById('absent-count');
+            const leaderboard = document.getElementById('leaderboard');
+            const navItems = document.querySelectorAll('.nav-item');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const themeToggle = document.getElementById('theme-toggle');
+            
+            // Check if user is logged in
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    // User is signed in
+                    const displayName = user.displayName || user.email.substring(0, user.email.indexOf('@'));
+                    welcomeText.textContent = `Welcome ${displayName}`;
+                    
+                    // Load dashboard data
+                    loadDashboardData();
+                } else {
+                    // User is signed out, redirect to login
+                    window.location.href = 'login.html';
+                }
+            });
+            
+            // Navigation
+            navItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all items
+                    navItems.forEach(navItem => navItem.classList.remove('active'));
+                    tabContents.forEach(tab => tab.classList.remove('active'));
+                    
+                    // Add active class to clicked item
+                    this.classList.add('active');
+                    
+                    // Show corresponding tab content
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Theme Toggle
+            themeToggle.addEventListener('click', function() {
+                document.body.classList.toggle('dark-theme');
+                
+                // Save theme preference to localStorage
+                const isDark = document.body.classList.contains('dark-theme');
+                localStorage.setItem('darkTheme', isDark);
+                
+                // Update icon
+                const icon = this.querySelector('i');
+                icon.textContent = isDark ? 'wb_sunny' : 'nights_stay';
+            });
+            
+            // Load saved theme
+            if (localStorage.getItem('darkTheme') === 'true') {
+                document.body.classList.add('dark-theme');
+                themeToggle.querySelector('i').textContent = 'wb_sunny';
+            }
+            
+            // Load dashboard data from Firestore
+            function loadDashboardData() {
+                // Load today's attendance data
+                loadAttendanceData();
+                
+                // Load leaderboard data
+                loadLeaderboardData();
+            }
+            
+            function loadAttendanceData() {
+                const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+                
+                // Listen for real-time updates from students collection
+                onSnapshot(collection(db, "students"), (snapshot) => {
+                    let present = 0;
+                    let absent = 0;
+                    
+                    snapshot.forEach((doc) => {
+                        const studentData = doc.data();
+                        const attendance = studentData.attendance || [];
+                        
+                        // Check if student has attendance for today
+                        if (attendance.some(record => record.startsWith(today))) {
+                            present++;
+                        } else {
+                            absent++;
+                        }
+                    });
+                    
+                    // Update UI
+                    presentCount.textContent = present;
+                    absentCount.textContent = absent;
+                });
+            }
+            
+            function loadLeaderboardData() {
+                onSnapshot(collection(db, "students"), (snapshot) => {
+                    const students = [];
+                    
+                    snapshot.forEach((doc) => {
+                        const studentData = doc.data();
+                        const name = studentData.name || "Unknown";
+                        const rewards = studentData.rewards || [];
+                        
+                        // Calculate total dollars
+                        let totalDollars = 0;
+                        rewards.forEach(reward => {
+                            totalDollars += reward.dollars || 0;
+                        });
+                        
+                        students.push({
+                            name: name,
+                            dollars: totalDollars
+                        });
+                    });
+                    
+                    // Sort by dollars (descending) and take top 3
+                    const topStudents = students.sort((a, b) => b.dollars - a.dollars).slice(0, 3);
+                    
+                    // Update leaderboard UI
+                    updateLeaderboardUI(topStudents);
+                });
+            }
+            
+            function updateLeaderboardUI(topStudents) {
+                if (topStudents.length === 0) {
+                    leaderboard.innerHTML = `
+                        <div style="text-align: center; width: 100%; padding: 20px; color: #666;">
+                            No student data available yet
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let leaderboardHTML = '';
+                
+                // Second place (if exists)
+                if (topStudents.length >= 2) {
+                    leaderboardHTML += `
+                        <div class="leaderboard-item">
+                            <div class="medal medal-silver">2</div>
+                            <div class="student-avatar">${topStudents[1].name.charAt(0).toUpperCase()}</div>
+                            <div class="student-name">${topStudents[1].name}</div>
+                            <div class="student-dollars">${topStudents[1].dollars} $</div>
+                        </div>
+                    `;
+                }
+                
+                // First place
+                if (topStudents.length >= 1) {
+                    leaderboardHTML += `
+                        <div class="leaderboard-item">
+                            <div class="medal medal-gold">1</div>
+                            <div class="student-avatar">${topStudents[0].name.charAt(0).toUpperCase()}</div>
+                            <div class="student-name">${topStudents[0].name}</div>
+                            <div class="student-dollars">${topStudents[0].dollars} $</div>
+                        </div>
+                    `;
+                }
+                
+                // Third place (if exists)
+                if (topStudents.length >= 3) {
+                    leaderboardHTML += `
+                        <div class="leaderboard-item">
+                            <div class="medal medal-bronze">3</div>
+                            <div class="student-avatar">${topStudents[2].name.charAt(0).toUpperCase()}</div>
+                            <div class="student-name">${topStudents[2].name}</div>
+                            <div class="student-dollars">${topStudents[2].dollars} $</div>
+                        </div>
+                    `;
+                }
+                
+                leaderboard.innerHTML = leaderboardHTML;
+            }
+            
+            // Add click handlers for action buttons
+            document.querySelectorAll('.action-button').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    alert('This feature would open in a real implementation');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
